@@ -10,14 +10,15 @@ from tkinter import *
 #ajustes de la ventana
 ventana = Tk()
 ventana.title ("termociclador") #nombre de la ventana
-ventana.geometry("500x500") #tamaño de la venatana
+ventana.geometry("500x500") #tamaño de la vendatana
 #ventana.iconbitmap("form.ico") #Cambiar el icono no hasta escojer un icono 
 ventana.config(bg="gray")#color de la ventana
-
+int a = 1920
+int b = 1080
 #ajuste y personalizacion de la ventana del sistema 
 #boton de play
 boton = tk.Button(text="play")
-boton.place(x=450, y=50)
+boton.place(x = a, y = b)
 
 #boton de pausa
 botonII = tk.Button(text="puase")
@@ -37,10 +38,15 @@ ventana.mainloop()#se mantiene la vantana este simpre tiene que estar al final d
 
 
 
-#main loop
+#variables de tiempo y temperatura 
 preca = int(input(" la temperatura de precalentado :"))
-time1 =
-time2 =
-time3 =
-time4 =
-enfriamiento =
+time1 =int (input("tiempo 1"))
+time2 =int (input("tiempo 1"))
+time3 =int (input("tiempo 1"))
+time4 =int (input("tiempo 1"))
+enfriamiento =int (input("tiempo 1"))
+temp1 = int (input("temperatura de precalentado"))
+temp2 = int (input("temperatura"))
+temp3 = int (input("temperatura"))
+temp4 = int (input("temperatura"))
+temp5 = int (input("temperatura"))
