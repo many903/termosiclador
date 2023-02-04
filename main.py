@@ -6,23 +6,26 @@
 #librerias
 import tkinter as tk
 from tkinter import *
+import serial
+
+#variables predeterminadas 
+a = 1920
+b = 1080 
 
 #ajustes de la ventana
 ventana = Tk()
 ventana.title ("termociclador") #nombre de la ventana
-ventana.geometry("500x500") #tamaño de la vendatana
+ventana.geometry("1920x1080") #tamaño de la vendatana
 #ventana.iconbitmap("form.ico") #Cambiar el icono no hasta escojer un icono 
 ventana.config(bg="gray")#color de la ventana
-int a = 1920
-int b = 1080
 #ajuste y personalizacion de la ventana del sistema 
 #boton de play
 boton = tk.Button(text="play")
-boton.place(x = a, y = b)
+boton.place(x = a-50, y = b-1000)
 
 #boton de pausa
 botonII = tk.Button(text="puase")
-botonII.place(x=400, y=50)
+botonII.place(x = a-150, y = b-1000)
 
 ventana.mainloop()#se mantiene la vantana este simpre tiene que estar al final de la config. de la ventana
 
@@ -35,8 +38,8 @@ ventana.mainloop()#se mantiene la vantana este simpre tiene que estar al final d
 #funcion del boton pause
 #def pausa():
 
-
-
+#que se tiene que enviar una vez se da en el boton de start
+#def proceso():
 
 #variables de tiempo y temperatura 
 preca = int(input(" la temperatura de precalentado :"))
