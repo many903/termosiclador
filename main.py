@@ -40,10 +40,15 @@ ventana.mainloop()#se mantiene la vantana este simpre tiene que estar al final d
 #def pausa():
 
 #que se tiene que enviar una vez se da en el boton de start
-#def proceso():
-    #if preca==0:
-        
-    #else:
+def varpreca():
+    if preca==0:
+        print("error de variable ")    
+    else:
+        #activa el puerto serial y envia la variable preca 
+
+def repeticion():
+    
+    
 
 #variables de tiempo y temperatura 
 preca = int(input(" la temperatura de precalentado :"))
