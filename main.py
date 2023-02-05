@@ -7,6 +7,7 @@
 import tkinter as tk
 from tkinter import *
 import serial
+import time
 
 #variables predeterminadas 
 a = 1920
@@ -21,10 +22,10 @@ ventana.config(bg="gray")#color de la ventana
 #ajuste y personalizacion de la ventana del sistema 
 #boton de play
 boton = tk.Button(text="play")
-boton.place(x = a-50, y = b-1000)
+boton.place(x = a-100, y = b-1000)
 
 #boton de pausa
-botonII = tk.Button(text="puase")
+botonII = tk.Button(text="puase",)
 botonII.place(x = a-150, y = b-1000)
 
 ventana.mainloop()#se mantiene la vantana este simpre tiene que estar al final de la config. de la ventana
@@ -40,6 +41,9 @@ ventana.mainloop()#se mantiene la vantana este simpre tiene que estar al final d
 
 #que se tiene que enviar una vez se da en el boton de start
 #def proceso():
+    #if preca==0:
+        
+    #else:
 
 #variables de tiempo y temperatura 
 preca = int(input(" la temperatura de precalentado :"))
