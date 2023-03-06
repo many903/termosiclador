@@ -8,7 +8,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter import messagebox as MessageBox
 from tkinter import ttk
-import serial
+#import serial
 import time
 
 #variables predeterminadas 
@@ -52,7 +52,7 @@ helpmenu = Menu(ventana)
 
 #menu sub-clases
 filemenu = Menu(menubar, tearoff=0)
-filemenu.add_command(label="Nuevo")
+filemenu.add_command(label="Nuevo",command="archivo")
 filemenu.add_command(label="Abrir")
 filemenu.add_command(label="Guardar")
 filemenu.add_command(label="Cerrar")
