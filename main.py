@@ -29,8 +29,27 @@ def archivo ():
     menu_arch = Tk()
     menu_arch.title("Archivo nuevo")
     menu_arch.geometry("200x200")
-    entry = Entry(menu_arch)
-    entry.pack()
+    Label(menu_arch,title="temperatura de precalentameinto").pack(anchor=NW)
+    preca = Entry(menu_arch)
+    preca.pack()
+    Label(menu_arch,title="temperatura de precalentameinto").pack(anchor=NW)
+    temp1 = Entry(menu_arch)
+    temp1.pack()
+    Label(menu_arch,title="temperatura de precalentameinto").pack(anchor=NW)
+    temp2 = Entry(menu_arch)
+    temp2.pack()
+    Label(menu_arch,title="temperatura de precalentameinto").pack(anchor=NW)
+    temp3 = Entry(menu_arch)
+    temp3.pack()
+    Label(menu_arch,title="temperatura de precalentameinto").pack(anchor=NW)
+    temp4 = Entry(menu_arch)
+    temp4.pack()
+    Label(menu_arch,title="temperatura de precalentameinto").pack(anchor=NW)
+    temp5 = Entry(menu_arch)
+    temp5.pack()
+
+
+
 
 #ajustes de la ventana
 ventana = Tk()
