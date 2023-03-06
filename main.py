@@ -7,6 +7,7 @@
 import tkinter as tk
 from tkinter import *
 from tkinter import messagebox as MessageBox
+from tkinter import ttk
 import serial
 import time
 
@@ -25,11 +26,11 @@ def play():
 
 #boton de la funcion de nuevo archivo
 def archivo ():
-    
-    MessageBox.showinfo(message = "incerte las variables del nuevo programa",title = "nuevo archivo")
-    entry = Entry(ventana)
+    menu_arch = Tk()
+    menu_arch.title("Archivo nuevo")
+    menu_arch.geometry("200x200")
+    entry = Entry(menu_arch)
     entry.pack()
-
 
 #ajustes de la ventana
 ventana = Tk()
@@ -75,7 +76,7 @@ new = tk.Button(text="nuevo archivo",command = archivo)
 new.place(x = a-600, y = b-1000)
 
 #mainloop
-ventana.mainloop()
+
 ventana.mainloop()#se mantiene la vantana este simpre tiene que estar al final de la config. de la ventana
 
 #funciones del programa
