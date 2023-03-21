@@ -8,6 +8,7 @@ import tkinter as tk
 from tkinter import *
 from tkinter import messagebox as MessageBox
 from tkinter import ttk
+import numpy as np
 #import serial
 import time
 
@@ -25,7 +26,7 @@ def play():
         #activa el puerto serial y envia la variable preca 
 
 #boton de la funcion de nuevo archivo
-def archivo ():
+def archivo_nuevo ():
     menu_arch = Tk()
     menu_arch.title("Archivo nuevo")
     menu_arch.geometry("200x200")
@@ -90,7 +91,7 @@ helpmenu = Menu(ventana)
 
 #menu sub-clases
 filemenu = Menu(menubar, tearoff=0)
-filemenu.add_command(label="Nuevo",command="archivo")
+filemenu.add_command(label="Nuevo",command="archivo_nuevo")
 filemenu.add_command(label="Abrir")
 filemenu.add_command(label="Guardar")
 filemenu.add_command(label="Cerrar")
@@ -110,7 +111,7 @@ botonII = tk.Button(text="puase",command = play)
 botonII.place(x = a-150, y = b-1000)
 
 #boton para agregar un nuevo archivo
-new = tk.Button(text="nuevo archivo",command = archivo)
+new = tk.Button(text="nuevo archivo",command = "archivo_nuevo")
 new.place(x = a-600, y = b-1000)
 
 #mainloop
