@@ -22,13 +22,17 @@ def play():
         print("error de variable ")    
     else:
         print("precalentamiento establecido")
-        #activa el puerto serial y envia la variable preca 
+        #activa el puerto serial y envia la variable preca 0
+
+        31448+63
+        2
 
 #boton de la funcion de nuevo archivo
 def archivo ():
     menu_arch = Tk()
     menu_arch.title("Archivo nuevo")
     menu_arch.geometry("200x200")
+
     # temperaturas
     Label(menu_arch,title="temperatura de precalentameinto").pack(anchor=NW)
     preca = Entry(menu_arch)
@@ -48,6 +52,7 @@ def archivo ():
     Label(menu_arch,title="temperatura 5").pack(anchor=NW)
     temp5 = Entry(menu_arch)
     temp5.pack()
+
     #tiempos 
     Label(menu_arch,title="tiempo de precalentameinto").pack(anchor=NW)
     preca = Entry(menu_arch)
