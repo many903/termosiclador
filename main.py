@@ -24,8 +24,6 @@ def play():
         print("precalentamiento establecido")
         #activa el puerto serial y envia la variable preca 0
 
-        31448+63
-        2
 
 #boton de la funcion de nuevo archivo
 def archivo ():
