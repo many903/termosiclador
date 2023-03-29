@@ -25,6 +25,8 @@ def play():
         #activa el puerto serial y envia la variable preca 0
 
 
+
+
 #boton de la funcion de nuevo archivo
 def archivo ():
     menu_arch = Tk()
