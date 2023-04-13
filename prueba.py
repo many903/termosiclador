@@ -1,4 +1,3 @@
-
 import serial,time,collections
 import matplotlib.pyplot as plt
 import matplotlib.animation as animacion
