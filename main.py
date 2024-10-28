@@ -1,8 +1,9 @@
+################################################################################
 # que librerias necesito si quiero un porgrama el cual me abra un ventana con ciertos criterios que me permitan lleva a cavo una interface 
 # y esta interafas al mismo tiempo me permita manajar uun dispocitivio por puerto seria
 # dentro de este dispocitivo nececito manejar:
 #  ventiladores ,sensro de temperatura, relay, 3 leds(cada led con su funcion correspondiente) y un buzzer 
-
+################################################################################
 #librerias
 import tkinter as tk
 from tkinter import *
@@ -10,11 +11,11 @@ from tkinter import messagebox as MessageBox
 from tkinter import ttk
 #import serial
 import time
-
+################################################################################
 #variables predeterminadas 
 a = 1920
 b = 1080 
-
+################################################################################
 #funciones del programa
 #funcion del boton play
 def play():
@@ -26,7 +27,7 @@ def play():
 
 
 
-
+################################################################################
 #boton de la funcion de nuevo archivo
 def archivo ():
     menu_arch = Tk()
@@ -74,25 +75,40 @@ def archivo ():
     temp5.pack()
 
 
-
+################################################################################
 #ajustes de la ventana
 ventana = Tk()
 ventana.title ("termociclador") #nombre de la ventana
-ventana.geometry("1920x1080") #tamaño de la vendatana
+ventana.geometry("920x800") #tamaño de la vendatana
 #ventana.iconbitmap("form.ico") #Cambiar el icono no hasta escojer un icono 
 ventana.config(bg="black")#color de la ventana
+
 #ajuste y personalizacion de la ventana del sistema 
+################################################################################
+#BOTONES_PROGRAMADOS:
+#boton new program
+boton2 = tk.Button(text="programa nuevo")
+boton2.place(x = 150, y = 100)
+
 #boton de play
 boton = tk.Button(text="play")
-boton.place(x = a-100, y = b-1000)
+boton.place(x = 100, y = 100)
 
-#barra de menu
+#boton de pausa
+botonII = tk.Button(text="puase",command = play)
+botonII.place(x = 280, y = 100)
+
+#boton para agregar un nuevo archivo
+new = tk.Button(text="nuevo archivo",command = archivo)
+new.place(x = 350, y = 100)
+################################################################################
+#BARRA_DE_MENU
 menubar = Menu(ventana)
 ventana.config(menu = menubar)
 filemenu = Menu(ventana)
 editmenu = Menu(ventana)
 helpmenu = Menu(ventana)
-
+################################################################################
 #menu sub-clases
 filemenu = Menu(menubar, tearoff=0)
 filemenu.add_command(label="Nuevo",command="archivo")
@@ -101,27 +117,21 @@ filemenu.add_command(label="Guardar")
 filemenu.add_command(label="Cerrar")
 editmenu = Menu(menubar, tearoff=0)
 helpmenu = Menu(menubar, tearoff=0)
-
+################################################################################
 #añadidos al menu
 menubar.add_cascade(label="Archivo", menu=filemenu)
 menubar.add_cascade(label="Editar", menu=editmenu)
 menubar.add_cascade(label="Ayuda", menu=helpmenu)
-
+################################################################################
 #cierre de la ventana
 filemenu.add_separator()
 filemenu.add_command(label="Salir", command=ventana.quit)
-#boton de pausa
-botonII = tk.Button(text="puase",command = play)
-botonII.place(x = a-150, y = b-1000)
-
-#boton para agregar un nuevo archivo
-new = tk.Button(text="nuevo archivo",command = archivo)
-new.place(x = a-600, y = b-1000)
-
+################################################################################
 #mainloop
 
 ventana.mainloop()#se mantiene la vantana este simpre tiene que estar al final de la config. de la ventana
 
+################################################################################
 #funciones del programa
 #funcion del boton play
 #def play():
