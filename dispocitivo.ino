@@ -42,7 +42,7 @@ void loop() {
             cicloActivo = false;
             Serial.println("Ciclo pausado");
         } else {
-            // Leer datos del puerto serial en el orden esperado
+            // Leer datos del puerto serial en el orden esperado, tempmax tempMin tempMed numCiclos tiempo; separados por un espacio //
             tempMax = comando.toFloat(); // Temperatura máxima permitida
             tempMin = Serial.parseFloat(); // Temperatura mínima permitida
             tempMed = Serial.parseFloat(); // Temperatura media de referencia
