@@ -1,19 +1,3 @@
-///////////////////////////////////////////////////////////////////////////////
-Para que este código funcione correctamente en Arduino, necesitas instalar las siguientes bibliotecas:
-
-Arduino.h (Viene incluida por defecto en el entorno de desarrollo de Arduino)
-OneWire (Para la comunicación con sensores de temperatura DS18B20)
-DallasTemperature (Para manejar sensores DS18B20 de manera más sencilla)
-Instalación de Librerías
-Puedes instalar estas bibliotecas desde el Administrador de Librerías en el IDE de Arduino:
-
-Abre el IDE de Arduino.
-Ve a Programa → Incluir Librería → Administrar Bibliotecas.
-Busca e instala las siguientes librerías:
-OneWire (de Paul Stoffregen)
-DallasTemperature (de Miles Burton)
-Después de instalar estas librerías, el código funcionará correctamente con el sensor DS18B20 y el control de temperatura. 
-///////////////////////////////////////////////////////////////////////////////
 #include <Arduino.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -31,6 +15,7 @@ DallasTemperature sensors(&oneWire);
 float tempMax, tempMin, tempMed; // Temperaturas de referencia
 int numCiclos;                   // Número de ciclos de control
 unsigned long tiempo;             // Tiempo de espera entre mediciones
+bool cicloActivo = false;         // Estado del ciclo de temperatura
 
 void setup() {
     Serial.begin(9600); // Iniciar comunicación serial
@@ -47,27 +32,34 @@ void setup() {
 
 void loop() {
     if (Serial.available() > 0) {
-        // Leer datos del puerto serial en el orden esperado
-        tempMax = Serial.parseFloat(); // Temperatura máxima permitida
-        tempMin = Serial.parseFloat(); // Temperatura mínima permitida
-        tempMed = Serial.parseFloat(); // Temperatura media de referencia
-        numCiclos = Serial.parseInt(); // Número de ciclos a ejecutar
-        tiempo = Serial.parseInt();    // Tiempo de espera entre mediciones (en segundos)
-        
-        // Mostrar en el monitor serial los valores recibidos
-        Serial.println("Datos recibidos correctamente");
-        Serial.print("Temp Max: "); Serial.println(tempMax);
-        Serial.print("Temp Min: "); Serial.println(tempMin);
-        Serial.print("Temp Med: "); Serial.println(tempMed);
-        Serial.print("Ciclos: "); Serial.println(numCiclos);
-        Serial.print("Tiempo: "); Serial.println(tiempo);
+        String comando = Serial.readStringUntil('\n');
+        comando.trim();
 
-        // Ejecutar ciclo de temperatura
+        if (comando == "play") {
+            cicloActivo = true;
+            Serial.println("Ciclo de temperatura iniciado");
+        } else if (comando == "pause") {
+            cicloActivo = false;
+            Serial.println("Ciclo pausado");
+        } else {
+            // Leer datos del puerto serial en el orden esperado
+            tempMax = comando.toFloat(); // Temperatura máxima permitida
+            tempMin = Serial.parseFloat(); // Temperatura mínima permitida
+            tempMed = Serial.parseFloat(); // Temperatura media de referencia
+            numCiclos = Serial.parseInt(); // Número de ciclos a ejecutar
+            tiempo = Serial.parseInt();    // Tiempo de espera entre mediciones (en segundos)
+            Serial.println("Datos recibidos correctamente");
+        }
+    }
+
+    // Ejecutar ciclo de temperatura si está activo
+    if (cicloActivo) {
         for (int i = 0; i < numCiclos; i++) {
+            if (!cicloActivo) break; // Detener en la iteración si se recibe "pause"
             Serial.print("Ciclo "); Serial.println(i + 1);
             
             // Subir a temperatura máxima
-            while (leerTemperatura() < tempMax) {
+            while (leerTemperatura() < tempMax && cicloActivo) {
                 digitalWrite(H_BRIDGE_UP, HIGH);
                 digitalWrite(H_BRIDGE_DOWN, LOW);
                 delay(tiempo * 1000);
@@ -75,7 +67,7 @@ void loop() {
             detenerControl();
             
             // Bajar a temperatura media
-            while (leerTemperatura() > tempMed) {
+            while (leerTemperatura() > tempMed && cicloActivo) {
                 digitalWrite(H_BRIDGE_UP, LOW);
                 digitalWrite(H_BRIDGE_DOWN, HIGH);
                 delay(tiempo * 1000);
@@ -83,7 +75,7 @@ void loop() {
             detenerControl();
             
             // Bajar a temperatura mínima
-            while (leerTemperatura() > tempMin) {
+            while (leerTemperatura() > tempMin && cicloActivo) {
                 digitalWrite(H_BRIDGE_UP, LOW);
                 digitalWrite(H_BRIDGE_DOWN, HIGH);
                 delay(tiempo * 1000);
@@ -92,14 +84,17 @@ void loop() {
         }
         
         // Bajar la temperatura a -5°C al final del número de ciclos
-        Serial.println("Bajando la temperatura a -5°C");
-        while (leerTemperatura() > -5.0) {
-            digitalWrite(H_BRIDGE_UP, LOW);
-            digitalWrite(H_BRIDGE_DOWN, HIGH);
-            delay(tiempo * 1000);
+        if (cicloActivo) {
+            Serial.println("Bajando la temperatura a -5°C");
+            while (leerTemperatura() > -5.0 && cicloActivo) {
+                digitalWrite(H_BRIDGE_UP, LOW);
+                digitalWrite(H_BRIDGE_DOWN, HIGH);
+                delay(tiempo * 1000);
+            }
+            detenerControl();
+            Serial.println("Proceso finalizado");
+            cicloActivo = false;
         }
-        detenerControl();
-        Serial.println("Proceso finalizado");
     }
 }
 
