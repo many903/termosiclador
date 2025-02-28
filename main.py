@@ -65,7 +65,7 @@ def guardar_datos(ventana):
 
 def enviar_por_puerto():
     ciclo_contenido = ciclo_texto.get("1.0", tk.END).strip()  # Obtiene el contenido del ciclo
-    if ciclo_contenido:
+    if ciclo_contenido: 
         enviar_datos(ciclo_contenido)  # Enviar el contenido del ciclo por puerto serie
         messagebox.showinfo("Enviado", "Ciclo enviado por puerto serie.")
     else:
