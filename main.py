@@ -88,7 +88,7 @@ def enviar_por_puerto():
     enviar_datos(comando)
     messagebox.showinfo("Enviado", "Datos enviados por puerto serie.")
 
-def abrir_archivo():<<
+def abrir_archivo():
     filename = filedialog.askopenfilename(filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
     if filename:
         os.system(f"notepad {filename}")
