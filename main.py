@@ -61,6 +61,23 @@ def play():
     except ValueError:
         messagebox.showerror("Error", "Ingrese un valor numérico válido para la vuelta.")  # Error si el valor no es válido
 
+def enviar_por_puerto():
+    """Envía todos los datos editados y el contenido del cuadro de texto al puerto serie."""
+    datos_a_enviar = ""
+    
+    # Recopilar los valores de las entradas
+    for key, entry in entradas.items():
+        valor = entry.get()
+        datos_a_enviar += f"{key}: {valor}\n"
+    
+    # También incluir el contenido del cuadro de texto
+    ciclo_valor = ciclo_texto.get("1.0", tk.END).strip()
+    datos_a_enviar += f"Ciclo: {ciclo_valor}\n"
+    
+    # Enviar todos los datos recopilados al puerto serie
+    enviar_datos(datos_a_enviar)
+    print(f"Enviado los siguientes datos:\n{datos_a_enviar}")  # Imprimir los datos enviados para depuración
+
 def archivo():
     menu_arch = tk.Toplevel()
     menu_arch.title("Nuevo Archivo")
