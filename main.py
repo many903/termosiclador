@@ -176,14 +176,15 @@ ventana.configure(bg="#4682B4")
 frame_principal = tk.Frame(ventana, bg="#4682B4")
 frame_principal.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
+# Contenedor de botones, acomodados horizontalmente
 botones_frame = tk.Frame(frame_principal, bg="#4682B4")
 botones_frame.pack()
 
-tk.Button(botones_frame, text="Abrir Puerto", command=abrir_puerto, bg="white", fg="black", width=20).pack(pady=10)
-tk.Button(botones_frame, text="Nuevo Archivo", command=archivo, bg="white", fg="black", width=20).pack(pady=10)
-tk.Button(botones_frame, text="Abrir Archivo", command=abrir_archivo, bg="white", fg="black", width=20).pack(pady=10)
-tk.Button(botones_frame, text="Play", command=play, bg="white", fg="black", width=20).pack(pady=10)
-tk.Button(botones_frame, text="Editar Archivo", command=editar_archivo, bg="white", fg="black", width=20).pack(pady=10)
+tk.Button(botones_frame, text="Abrir Puerto", command=abrir_puerto, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=5)
+tk.Button(botones_frame, text="Nuevo Archivo", command=archivo, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=5)
+tk.Button(botones_frame, text="Abrir Archivo", command=abrir_archivo, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=5)
+tk.Button(botones_frame, text="Play", command=play, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=5)
+tk.Button(botones_frame, text="Editar Archivo", command=editar_archivo, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=5)
 
 menubar = tk.Menu(ventana)
 ventana.config(menu=menubar)
