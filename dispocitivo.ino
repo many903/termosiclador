@@ -39,7 +39,7 @@ String comando;
 bool cicloActivo = false;        // Estado del ciclo de temperatura
 bool cancelado = false;          // Estado de cancelación
 
-void setup() {
+void setup() { 
     Serial.begin(9600); // Iniciar comunicación serial
     sensors.begin();    // Iniciar el sensor de temperatura
     
