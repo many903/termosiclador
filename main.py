@@ -52,12 +52,14 @@ def enviar_datos(comando):
 def play():
     """Ejecuta el cálculo del ciclo y envía los datos."""
     try:
-        vuelta = int(entradas["numCiclos"].get())
-        resultado = math.factorial(vuelta)
-        enviar_datos(f"CICLO:{resultado}")
-        print(f"Ciclo {vuelta} calculado: {resultado}")
+        vuelta = int(entradas["numCiclos"].get())  # Obtiene el valor de "Número de Ciclos"
+        resultado = math.factorial(vuelta)  # Calcula el factorial del número de ciclos
+        enviar_datos(f"CICLO:{resultado}")  # Envía el resultado por el puerto serie
+        print(f"Ciclo {vuelta} calculado: {resultado}")  # Imprime el resultado en la consola
+        ciclo_texto.delete("1.0", tk.END)  # Limpia el cuadro de texto antes de mostrar el nuevo resultado
+        ciclo_texto.insert(tk.END, f"Resultado del cálculo: {resultado}")  # Muestra el resultado en el cuadro de texto
     except ValueError:
-        messagebox.showerror("Error", "Ingrese un valor numérico válido para la vuelta.")
+        messagebox.showerror("Error", "Ingrese un valor numérico válido para la vuelta.")  # Error si el valor no es válido
 
 def archivo():
     menu_arch = tk.Toplevel()
@@ -176,21 +178,25 @@ ventana.configure(bg="#4682B4")
 frame_principal = tk.Frame(ventana, bg="#4682B4")
 frame_principal.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
-# Contenedor de botones, acomodados horizontalmente
 botones_frame = tk.Frame(frame_principal, bg="#4682B4")
 botones_frame.pack()
 
-tk.Button(botones_frame, text="Abrir Puerto", command=abrir_puerto, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=5)
-tk.Button(botones_frame, text="Nuevo Archivo", command=archivo, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=5)
-tk.Button(botones_frame, text="Abrir Archivo", command=abrir_archivo, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=5)
-tk.Button(botones_frame, text="Play", command=play, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=5)
-tk.Button(botones_frame, text="Editar Archivo", command=editar_archivo, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=5)
+# Botones
+tk.Button(botones_frame, text="Abrir Puerto", command=abrir_puerto, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=10)
+tk.Button(botones_frame, text="Nuevo Archivo", command=guardar_datos, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=10)
+tk.Button(botones_frame, text="Abrir Archivo", command=abrir_archivo, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=10)
+tk.Button(botones_frame, text="Play", command=play, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=10)
+tk.Button(botones_frame, text="Editar Archivo", command=editar_archivo, bg="white", fg="black", width=20).pack(side=tk.LEFT, padx=10)
+
+# Cuadro de texto para mostrar el resultado de "Play"
+ciclo_texto = tk.Text(frame_principal, height=5, width=60)
+ciclo_texto.pack(pady=10)
 
 menubar = tk.Menu(ventana)
 ventana.config(menu=menubar)
 filemenu = tk.Menu(menubar, tearoff=0)
 filemenu.add_command(label="Abrir Puerto", command=abrir_puerto)
-filemenu.add_command(label="Nuevo", command=archivo)
+filemenu.add_command(label="Nuevo", command=guardar_datos)
 filemenu.add_command(label="Abrir", command=abrir_archivo)
 filemenu.add_command(label="Editar Archivo", command=editar_archivo)
 filemenu.add_separator()
