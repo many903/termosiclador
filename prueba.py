@@ -54,35 +54,19 @@ def calcular_factorial(vuelta):
     return math.factorial(vuelta)
 
 def play():
-    """Ejecuta el cálculo del ciclo, muestra los datos y los envía."""
+    """Ejecuta el cálculo del ciclo y envía los datos."""
     try:
-        # Verificar que las entradas están inicializadas
-        if "numCiclos" not in entradas:
-            messagebox.showerror("Error", "'Número de Ciclos' no está disponible.")
-            return
-        
-        vuelta = int(entradas["numCiclos"].get())  # Obtiene el valor de "Número de Ciclos"
-        
-        # Calculamos el factorial
-        resultado = calcular_factorial(vuelta)
-        
-        # Datos que se enviarán
-        datos = {key: entradas[key].get() for key in entradas}
-        datos["ciclo"] = ciclo_texto.get("1.0", tk.END).strip()
-        datos["resultado_factorial"] = resultado
-        
-        # Mostrar en la pantalla principal los datos que se van a enviar
-        datos_a_enviar = "\n".join([f"{key}: {value}" for key, value in datos.items()])
-        datos_label.config(text=f"Datos a Enviar:\n{datos_a_enviar}")
-        
-        # Enviar los datos por puerto serie
-        comando = f"Factorial:{resultado}"
-        enviar_datos(comando)
-        
-        print(f"Factorial de {vuelta}: {resultado}")
+        # Verifica si 'numCiclos' está en las entradas
+        if "numCiclos" in entradas:
+            vuelta = int(entradas["numCiclos"].get())  # Obtiene el valor de "Número de Ciclos"
+            # Realiza el cálculo del factorial
+            resultado = calcular_factorial(vuelta)
+            enviar_datos(f"Factorial:{resultado}")
+            print(f"Factorial de {vuelta}: {resultado}")
+        else:
+            messagebox.showerror("Error", "No se encontró el campo 'Número de Ciclos'.")
     except ValueError:
         messagebox.showerror("Error", "Ingrese un valor numérico válido para la vuelta.")
-
 def archivo():
     """Crea una nueva ventana para ingresar datos y guarda esos datos en un archivo."""
     menu_arch = tk.Toplevel()
