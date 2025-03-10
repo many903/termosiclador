@@ -74,13 +74,14 @@ def play():
         messagebox.showerror("Error", "Ingrese un valor numérico válido para la vuelta.")
 
 def archivo():
+    """Crea una nueva ventana para ingresar datos y guarda esos datos en un archivo."""
     menu_arch = tk.Toplevel()
     menu_arch.title("Nuevo Archivo")
     menu_arch.geometry("400x600")
     menu_arch.configure(bg="#4682B4")
 
     global vuelta_entry, ciclo_texto, entradas
-    entradas = {}
+    entradas = {}  # Limpiamos la variable global de entradas para el nuevo formulario
     etiquetas = [
         ("Temperatura Inicial", "tempInicial"),
         ("Temperatura Máxima", "tempMax"),
@@ -111,6 +112,7 @@ def archivo():
     tk.Button(menu_arch, text="Enviar por Puerto Serie", command=enviar_por_puerto).pack(pady=10)
 
 def guardar_datos(ventana):
+    """Guarda los datos introducidos por el usuario en un archivo de texto."""
     datos = {etiqueta: entradas[etiqueta].get() for etiqueta in entradas}
     datos["ciclo"] = ciclo_texto.get("1.0", tk.END).strip()
     
@@ -123,6 +125,7 @@ def guardar_datos(ventana):
         messagebox.showinfo("Guardado", "Datos guardados exitosamente.")
 
 def enviar_por_puerto():
+    """Envía los datos ingresados por el usuario a través del puerto serie."""
     datos = {etiqueta: entradas[etiqueta].get() for etiqueta in entradas}
     datos["ciclo"] = ciclo_texto.get("1.0", tk.END).strip()
     comando = "orden: " + ",".join([datos[key] for key in entradas])
@@ -202,7 +205,7 @@ botones_frame = tk.Frame(frame_principal, bg="#4682B4")
 botones_frame.pack()
 
 tk.Button(botones_frame, text="Abrir Puerto", command=abrir_puerto, bg="white", fg="black", width=20).pack(pady=10)
-tk.Button(botones_frame, text="Nuevo Archivo", command=guardar_datos, bg="white", fg="black", width=20).pack(pady=10)
+tk.Button(botones_frame, text="Nuevo Archivo", command=archivo, bg="white", fg="black", width=20).pack(pady=10)
 tk.Button(botones_frame, text="Abrir Archivo", command=abrir_archivo, bg="white", fg="black", width=20).pack(pady=10)
 tk.Button(botones_frame, text="Play", command=play, bg="white", fg="black", width=20).pack(pady=10)
 tk.Button(botones_frame, text="Editar Archivo", command=editar_archivo, bg="white", fg="black", width=20).pack(pady=10)
@@ -211,7 +214,7 @@ menubar = tk.Menu(ventana)
 ventana.config(menu=menubar)
 filemenu = tk.Menu(menubar, tearoff=0)
 filemenu.add_command(label="Abrir Puerto", command=abrir_puerto)
-filemenu.add_command(label="Nuevo", command=guardar_datos)
+filemenu.add_command(label="Nuevo", command=archivo)
 filemenu.add_command(label="Abrir", command=abrir_archivo)
 filemenu.add_command(label="Editar Archivo", command=editar_archivo)
 filemenu.add_separator()

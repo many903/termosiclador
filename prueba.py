@@ -1,104 +1,225 @@
-import serial,time,collections
-import matplotlib.pyplot as plt
-import matplotlib.animation as animacion
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from threading import Thread
-from tkinter import Tk, Frame, StringVar, Label,Button,Entry
+import tkinter as tk
+from tkinter import messagebox, filedialog
+import serial
+import serial.tools.list_ports
+import os
+import math
 
-isReceiving= False 
-isRun = True 
-datos = 0.0
-muestraD = 100
-data = collections.deque([0]*muestraD, maxlen=muestraD)
-xmin = 0
-xmax = muestraD
-ymin = -5
-ymax = 5 
-#"/dev/ttyUSBB"
-try:
-    arduino = serial.Serial("COM6", 9600 , timeout=1)          
-except:
-    print("Error de coneccion con el puerto")
+# Variables globales
+ser = None
+datos_cargados = {}
+entradas = {}
+filename = None  # Variable global para almacenar el nombre del archivo cargado
 
-def Iniciar():
-    global datos
-    global isReceiving
-    global isRun
-    isReceiving = True
-    isRun = True   
-    thread.start() 
-    anim = animacion.FuncAnimation(fig, plotData,  fargs=(muestraD,lines),interval = 100, blit = False )
-    plt.show()
+def abrir_puerto():
+    """Muestra los puertos serie disponibles y permite al usuario seleccionar uno para conectarse."""
+    global ser
+    puertos_disponibles = [port.device for port in serial.tools.list_ports.comports()]
     
-def DatosA():
-    time.sleep(1)
-    arduino.reset_input_buffer()
-    while (isRun):
-        global isReceive
-        global datos 
-        datos = float(arduino.readline().decode('utf-8'))
-        isReceive = True
+    if not puertos_disponibles:
+        messagebox.showerror("Error", "No se encontraron puertos disponibles.")
+        return
+    
+    ventana_puerto = tk.Toplevel()
+    ventana_puerto.title("Seleccionar Puerto")
+    ventana_puerto.geometry("300x200")
+    
+    tk.Label(ventana_puerto, text="Seleccione el puerto:").pack(pady=10)
+    puerto_var = tk.StringVar(value=puertos_disponibles[0])
+    lista_puertos = tk.OptionMenu(ventana_puerto, puerto_var, *puertos_disponibles)
+    lista_puertos.pack(pady=10)
+    
+    def conectar():
+        """Intenta conectar al puerto seleccionado."""
+        global ser
+        try:
+            ser = serial.Serial(puerto_var.get(), baudrate=9600, timeout=1)
+            messagebox.showinfo("Éxito", f"Conectado a {puerto_var.get()}")
+            ventana_puerto.destroy()
+        except serial.SerialException:
+            messagebox.showerror("Error", "No se pudo abrir el puerto seleccionado.")
+    
+    tk.Button(ventana_puerto, text="Conectar", command=conectar).pack(pady=10)
+
+def enviar_datos(comando):
+    """Envía un comando por el puerto serie."""
+    if ser:
+        ser.write(comando.encode())
+        print(f"Enviado: {comando}")
+    else:
+        print("Error: No hay conexión con el puerto serie.")
+
+def calcular_factorial(vuelta):
+    """Calcula el factorial de vuelta (vuelta!)."""
+    return math.factorial(vuelta)
+
+def play():
+    """Ejecuta el cálculo del ciclo, muestra los datos y los envía."""
+    try:
+        # Verificar que las entradas están inicializadas
+        if "numCiclos" not in entradas:
+            messagebox.showerror("Error", "'Número de Ciclos' no está disponible.")
+            return
         
-def plotData(self,muestraD,lines):
-    data.append(datos)
-    lines.set_data(range(muestraD), data)
-    labelx.set("VOL:" + str(datos)) 
-thread = Thread(target = DatosA) 
+        vuelta = int(entradas["numCiclos"].get())  # Obtiene el valor de "Número de Ciclos"
+        
+        # Calculamos el factorial
+        resultado = calcular_factorial(vuelta)
+        
+        # Datos que se enviarán
+        datos = {key: entradas[key].get() for key in entradas}
+        datos["ciclo"] = ciclo_texto.get("1.0", tk.END).strip()
+        datos["resultado_factorial"] = resultado
+        
+        # Mostrar en la pantalla principal los datos que se van a enviar
+        datos_a_enviar = "\n".join([f"{key}: {value}" for key, value in datos.items()])
+        datos_label.config(text=f"Datos a Enviar:\n{datos_a_enviar}")
+        
+        # Enviar los datos por puerto serie
+        comando = f"Factorial:{resultado}"
+        enviar_datos(comando)
+        
+        print(f"Factorial de {vuelta}: {resultado}")
+    except ValueError:
+        messagebox.showerror("Error", "Ingrese un valor numérico válido para la vuelta.")
 
-def Salir():
-    global isRun
-    isRun = False 
-    thread.join()
-    arduino.close()
-    time.sleep(1)
-    raiz.destroy()
-    raiz.quit()
-    print("proceso finalizado")
-def Terminar():  
-    global isRun
-    global isReceiving 
-    isRun = False 
-    isReceiving = False
-    time.sleep(0.5)
-    thread.join(timeout=0.3)
-    arduino.close()
-    datos=00.0
+def archivo():
+    """Crea una nueva ventana para ingresar datos y guarda esos datos en un archivo."""
+    menu_arch = tk.Toplevel()
+    menu_arch.title("Nuevo Archivo")
+    menu_arch.geometry("400x600")
+    menu_arch.configure(bg="#4682B4")
+
+    global vuelta_entry, ciclo_texto, entradas
+    entradas = {}  # Limpiamos la variable global de entradas para el nuevo formulario
+    etiquetas = [
+        ("Temperatura Inicial", "tempInicial"),
+        ("Temperatura Máxima", "tempMax"),
+        ("Temperatura Media", "tempMed"),
+        ("Temperatura Mínima", "tempMin"),
+        ("Temperatura de Almacenamiento", "tempAlm"),
+        ("Tiempo 1", "time1"),
+        ("Tiempo 2", "time2"),
+        ("Tiempo 3", "time3"),
+        ("Tiempo 4", "time4"),
+        ("Número de Ciclos", "numCiclos"),  # Asegúrate de que 'numCiclos' esté en el formulario
+    ]
     
-# , figsize=(6, 5)   tamaño / , dpi=75  zoom / plt.cla()  borra  nombres x e y /
-fig = plt.figure(facecolor="0.55",figsize=(6, 4), clear=True, dpi=100)
-ax = plt.axes(xlim=(xmin,xmax),ylim=(ymin,ymax))
-plt.title("Grafica - 0 - 5 Voltios",color='red',size=16, family="Tahoma")
-ax.set_xlabel("Muestras")
-ax.set_ylabel("Señal")
-lines = ax.plot([] ,[], 'r')[0]
+    for etiqueta, key in etiquetas:
+        frame = tk.Frame(menu_arch, bg="#4682B4")
+        frame.pack(fill=tk.X, padx=10, pady=2)
+        tk.Label(frame, text=etiqueta, bg="#4682B4", fg="white", width=25, anchor='w').pack(side=tk.LEFT)
+        entrada = tk.Entry(frame)
+        entrada.pack(side=tk.RIGHT, fill=tk.X, expand=True)
+        entradas[key] = entrada  # Rellenamos el diccionario 'entradas'
 
-def Limpiar():
-    fig.clf()
+    tk.Label(menu_arch, text="Ciclo (Contenido a enviar)", bg="#4682B4", fg="white").pack(anchor=tk.NW)
+    ciclo_texto = tk.Text(menu_arch, height=5, width=40)
+    ciclo_texto.pack(pady=10)
+
+    tk.Button(menu_arch, text="Guardar", command=lambda: guardar_datos(menu_arch)).pack(pady=10)
+    tk.Button(menu_arch, text="Enviar por Puerto Serie", command=enviar_por_puerto).pack(pady=10)
+
+def guardar_datos(ventana):
+    datos = {etiqueta: entradas[etiqueta].get() for etiqueta in entradas}
+    datos["ciclo"] = ciclo_texto.get("1.0", tk.END).strip()
     
-raiz = Tk()
-raiz.protocol("WM_DELATE_WINDOW",Salir)
-raiz.config(bg = "black")
-raiz.title("  \t\t\t\t GRAFICA SEÑAL ANALOGICA")
-raiz.geometry("738x402")
-raiz.resizable(1,1)
+    global filename
+    filename = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+    if filename:
+        with open(filename, "w") as file:
+            for key, value in datos.items():
+                file.write(f"{key}: {value}\n")
+        messagebox.showinfo("Guardado", "Datos guardados exitosamente.")
 
-lienzo = FigureCanvasTkAgg(fig, master = raiz )
-lienzo._tkcanvas.grid(row = 0,column = 0, padx = 1,pady = 1)
-frame = Frame(raiz, width = 130,height = 402, bg = "#7003FC")
-frame.grid(row = 0,column = 1, padx = 1,pady = 2)
-frame.grid_propagate(False)
-frame.config(relief = "sunken")
-frame.config(cursor = "heart")
-labelx = StringVar(raiz, "VOL: 0.00")
+def enviar_por_puerto():
+    datos = {etiqueta: entradas[etiqueta].get() for etiqueta in entradas}
+    datos["ciclo"] = ciclo_texto.get("1.0", tk.END).strip()
+    comando = "orden: " + ",".join([datos[key] for key in entradas])
+    enviar_datos(comando)
+    messagebox.showinfo("Enviado", "Datos enviados por puerto serie.")
 
-label = Label(frame,textvariable = labelx, bg= "#5CFE05",fg="black", font="Helvetica 13 bold",width=11 ,justify="center")
-label.grid(row=0,column=0, padx=5,ipady=8, pady=10)
-Iniciar = Button(frame,command= Iniciar, text= "Iniciar ",bg="blue",fg="white", font="Helvetica 14 bold",width=9,justify="center")
-Iniciar.grid(row=1,column=0, padx=5,pady=5)
-terminar = Button(frame,command= Terminar, text= "Terminar",bg="blue",fg="white", font="Helvetica 14 bold",width=9)
-terminar.grid(row=2,column=0, padx=5,pady=5)
-limpiar = Button(frame,command= Limpiar, text= "Limpiar ",bg="blue",fg="white", font="Helvetica 14 bold",width=9,justify="center")
-limpiar.grid(row=3,column=0, padx=5,pady=5)
-salir = Button(frame,command= Salir, width=9 ,text= "SALIR",bg="red", font="Helvetica 14 bold",justify="center")
-salir.grid(row=4,column=0, padx=5,pady=125)
-raiz.mainloop()
+def abrir_archivo():
+    """Abre y carga datos desde un archivo guardado."""
+    global datos_cargados, filename
+    filename = filedialog.askopenfilename(filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+    if filename:
+        with open(filename, "r") as file:
+            datos_cargados.clear()
+            for line in file:
+                clave, valor = line.strip().split(": ", 1)
+                datos_cargados[clave] = valor
+        messagebox.showinfo("Cargado", "Datos cargados exitosamente.")
+        actualizar_campos()
+
+def actualizar_campos():
+    """Llena los campos con los datos cargados."""
+    for key, entry in entradas.items():
+        if key in datos_cargados:
+            entry.delete(0, tk.END)
+            entry.insert(0, datos_cargados[key])
+    ciclo_texto.delete("1.0", tk.END)
+    if "ciclo" in datos_cargados:
+        ciclo_texto.insert("1.0", datos_cargados["ciclo"])
+
+def editar_archivo():
+    """Permite editar un archivo previamente cargado."""
+    global datos_cargados
+    if not datos_cargados:
+        messagebox.showerror("Error", "No hay datos cargados para editar.")
+        return
+
+    ventana_edicion = tk.Toplevel()
+    ventana_edicion.title("Editar Archivo")
+    
+    tk.Label(ventana_edicion, text="Editar Datos del Archivo").pack(pady=10)
+    
+    # Crear campos de edición basados en los datos cargados
+    for key, value in datos_cargados.items():
+        tk.Label(ventana_edicion, text=key).pack(pady=5)
+        entry = tk.Entry(ventana_edicion)
+        entry.insert(0, value)
+        entry.pack(pady=5)
+        entradas[key] = entry
+    
+    def guardar_ediciones():
+        """Guardar los datos editados en el archivo original."""
+        datos_editados = {key: entry.get() for key, entry in entradas.items()}
+        
+        global filename
+        if not filename:
+            filename = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+        
+        if filename:
+            with open(filename, "w") as file:
+                for key, value in datos_editados.items():
+                    file.write(f"{key}: {value}\n")
+            messagebox.showinfo("Guardado", "Datos editados y guardados exitosamente.")
+            ventana_edicion.destroy()
+
+    tk.Button(ventana_edicion, text="Guardar Cambios", command=guardar_ediciones).pack(pady=10)
+
+# Configuración de la ventana principal
+ventana = tk.Tk()
+ventana.title("Termociclador")
+ventana.state("zoomed")
+ventana.configure(bg="#4682B4")
+
+frame_principal = tk.Frame(ventana, bg="#4682B4")
+frame_principal.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+
+botones_frame = tk.Frame(frame_principal, bg="#4682B4")
+botones_frame.pack()
+
+# Botones
+tk.Button(botones_frame, text="Abrir Puerto", command=abrir_puerto, bg="white", fg="black", width=20).pack(pady=10)
+tk.Button(botones_frame, text="Nuevo Archivo", command=archivo, bg="white", fg="black", width=20).pack(pady=10)
+tk.Button(botones_frame, text="Abrir Archivo", command=abrir_archivo, bg="white", fg="black", width=20).pack(pady=10)
+tk.Button(botones_frame, text="Play", command=play, bg="white", fg="black", width=20).pack(pady=10)
+tk.Button(botones_frame, text="Editar Archivo", command=editar_archivo, bg="white", fg="black", width=20).pack(pady=10)
+
+# Área para mostrar los datos que se enviarán
+datos_label = tk.Label(frame_principal, text="Datos a Enviar:", bg="#4682B4", fg="white", anchor="w", justify="left")
+datos_label.pack(pady=20)
+
+ventana.mainloop()
