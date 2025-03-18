@@ -49,27 +49,36 @@ def enviar_datos(comando):
     else:
         print("Error: No hay conexión con el puerto serie.")
 
-def calcular_exponencial(vuelta):
-    """Calcula la exponencial de vuelta (e^vuelta)."""
-    return math.exp(vuelta)
-
 def calcular_factorial(vuelta):
     """Calcula el factorial de vuelta (vuelta!)."""
     return math.factorial(vuelta)
 
 def play():
-    """Ejecuta el cálculo del ciclo y envía los datos."""
+    """Ejecuta el cálculo del ciclo, muestra los datos y los envía."""
     try:
+        # Verificar que las entradas están inicializadas
+        if "numCiclos" not in entradas:
+            messagebox.showerror("Error", "'Número de Ciclos' no está disponible.")
+            return
+
         vuelta = int(entradas["numCiclos"].get())  # Obtiene el valor de "Número de Ciclos"
-        # Elige entre calcular la exponencial o el factorial
-        if entradas["calculo"].get() == "Exponencial":
-            resultado = calcular_exponencial(vuelta)
-            enviar_datos(f"Exponencial:{resultado}")
-            print(f"Exponencial de {vuelta}: {resultado}")
-        else:
-            resultado = calcular_factorial(vuelta)
-            enviar_datos(f"Factorial:{resultado}")
-            print(f"Factorial de {vuelta}: {resultado}")
+
+        # Calculamos el factorial
+        resultado = calcular_factorial(vuelta)
+
+        # Datos que se enviarán
+        datos = {key: entradas[key].get() for key in entradas}
+        datos["ciclo"] = ciclo_texto.get("1.0", tk.END).strip()
+        datos["resultado_factorial"] = resultado
+
+        # Mostrar en la pantalla principal los datos que se van a enviar
+        datos_a_enviar = "\n".join([f"{key}: {value}" for key, value in datos.items()])
+        datos_label.config(text=f"Datos a Enviar:\n{datos_a_enviar}")
+
+        # Enviar los datos por puerto serie
+        comando = f"Factorial:{resultado}"
+        enviar_datos(comando)
+
     except ValueError:
         messagebox.showerror("Error", "Ingrese un valor numérico válido para la vuelta.")
 
@@ -92,17 +101,16 @@ def archivo():
         ("Tiempo 2", "time2"),
         ("Tiempo 3", "time3"),
         ("Tiempo 4", "time4"),
-        ("Número de Ciclos", "numCiclos"),
-        ("Cálculo", "calculo")
+        ("Número de Ciclos", "numCiclos"),  # Asegúrate de que 'numCiclos' esté en el formulario
     ]
-
+    
     for etiqueta, key in etiquetas:
         frame = tk.Frame(menu_arch, bg="#4682B4")
         frame.pack(fill=tk.X, padx=10, pady=2)
         tk.Label(frame, text=etiqueta, bg="#4682B4", fg="white", width=25, anchor='w').pack(side=tk.LEFT)
         entrada = tk.Entry(frame)
         entrada.pack(side=tk.RIGHT, fill=tk.X, expand=True)
-        entradas[key] = entrada
+        entradas[key] = entrada  # Rellenamos el diccionario 'entradas'
 
     tk.Label(menu_arch, text="Ciclo (Contenido a enviar)", bg="#4682B4", fg="white").pack(anchor=tk.NW)
     ciclo_texto = tk.Text(menu_arch, height=5, width=40)
@@ -112,7 +120,6 @@ def archivo():
     tk.Button(menu_arch, text="Enviar por Puerto Serie", command=enviar_por_puerto).pack(pady=10)
 
 def guardar_datos(ventana):
-    """Guarda los datos introducidos por el usuario en un archivo de texto."""
     datos = {etiqueta: entradas[etiqueta].get() for etiqueta in entradas}
     datos["ciclo"] = ciclo_texto.get("1.0", tk.END).strip()
     
@@ -125,7 +132,6 @@ def guardar_datos(ventana):
         messagebox.showinfo("Guardado", "Datos guardados exitosamente.")
 
 def enviar_por_puerto():
-    """Envía los datos ingresados por el usuario a través del puerto serie."""
     datos = {etiqueta: entradas[etiqueta].get() for etiqueta in entradas}
     datos["ciclo"] = ciclo_texto.get("1.0", tk.END).strip()
     comando = "orden: " + ",".join([datos[key] for key in entradas])
@@ -204,21 +210,15 @@ frame_principal.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 botones_frame = tk.Frame(frame_principal, bg="#4682B4")
 botones_frame.pack()
 
+# Botones
 tk.Button(botones_frame, text="Abrir Puerto", command=abrir_puerto, bg="white", fg="black", width=20).pack(pady=10)
 tk.Button(botones_frame, text="Nuevo Archivo", command=archivo, bg="white", fg="black", width=20).pack(pady=10)
 tk.Button(botones_frame, text="Abrir Archivo", command=abrir_archivo, bg="white", fg="black", width=20).pack(pady=10)
 tk.Button(botones_frame, text="Play", command=play, bg="white", fg="black", width=20).pack(pady=10)
 tk.Button(botones_frame, text="Editar Archivo", command=editar_archivo, bg="white", fg="black", width=20).pack(pady=10)
 
-menubar = tk.Menu(ventana)
-ventana.config(menu=menubar)
-filemenu = tk.Menu(menubar, tearoff=0)
-filemenu.add_command(label="Abrir Puerto", command=abrir_puerto)
-filemenu.add_command(label="Nuevo", command=archivo)
-filemenu.add_command(label="Abrir", command=abrir_archivo)
-filemenu.add_command(label="Editar Archivo", command=editar_archivo)
-filemenu.add_separator()
-filemenu.add_command(label="Salir", command=ventana.quit)
-menubar.add_cascade(label="Archivo", menu=filemenu)
+# Área para mostrar los datos que se enviarán
+datos_label = tk.Label(frame_principal, text="Datos a Enviar:", bg="#4682B4", fg="white", anchor="w", justify="left")
+datos_label.pack(pady=20)
 
 ventana.mainloop()
