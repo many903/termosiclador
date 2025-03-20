@@ -1,5 +1,3 @@
-# ui.py
-
 import tkinter as tk
 from tkinter import messagebox, filedialog
 import serial
@@ -82,6 +80,8 @@ def play():
 
     except ValueError:
         messagebox.showerror("Error", "Ingrese un valor numérico válido para la vuelta.")
+    except AttributeError:
+        messagebox.showerror("Error", "Algunos campos de entrada no están disponibles.")
 
 def archivo():
     """Crea una nueva ventana para ingresar datos y guarda esos datos en un archivo."""
@@ -143,6 +143,7 @@ def abrir_archivo():
     """Abre y carga datos desde un archivo guardado."""
     global datos_cargados, filename
     filename = filedialog.askopenfilename(filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+    
     if filename:
         with open(filename, "r") as file:
             datos_cargados.clear()
@@ -150,14 +151,18 @@ def abrir_archivo():
                 clave, valor = line.strip().split(": ", 1)
                 datos_cargados[clave] = valor
         messagebox.showinfo("Cargado", "Datos cargados exitosamente.")
-        actualizar_campos()
+        if 'ventana_puerto' in globals() and ventana_puerto.winfo_exists():  # Verifica si la ventana existe
+            actualizar_campos()
+        else:
+            print("Ventana ya cerrada, no se puede actualizar.")
 
 def actualizar_campos():
     """Llena los campos con los datos cargados."""
     for key, entry in entradas.items():
-        if key in datos_cargados:
+        if key in datos_cargados and entry.winfo_exists():  # Verifica que el Entry todavía exista
             entry.delete(0, tk.END)
             entry.insert(0, datos_cargados[key])
+    
     ciclo_texto.delete("1.0", tk.END)
     if "ciclo" in datos_cargados:
         ciclo_texto.insert("1.0", datos_cargados["ciclo"])
