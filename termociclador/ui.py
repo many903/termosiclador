@@ -8,7 +8,8 @@ import math
 ser = None
 datos_cargados = {}
 entradas = {}
-filename = None  # Variable global para almacenar el nombre del archivo cargado
+filename = None
+ciclo_texto = None
 
 def abrir_puerto():
     """Muestra los puertos serie disponibles y permite al usuario seleccionar uno para conectarse."""
@@ -19,7 +20,7 @@ def abrir_puerto():
         messagebox.showerror("Error", "No se encontraron puertos disponibles.")
         return
     
-    ventana_puerto = tk.Toplevel()  # Inicializamos la ventana aquí
+    ventana_puerto = tk.Toplevel()
     ventana_puerto.title("Seleccionar Puerto")
     ventana_puerto.geometry("300x200")
     
@@ -55,95 +56,73 @@ def calcular_factorial(vuelta):
 def play():
     """Ejecuta el cálculo del ciclo, muestra los datos y los envía."""
     try:
-        # Verificar que las entradas están inicializadas
-        if "numCiclos" not in entradas:
-            messagebox.showerror("Error", "'Número de Ciclos' no está disponible.")
-            return
-
-        vuelta = int(entradas["numCiclos"].get())  # Obtiene el valor de "Número de Ciclos"
-
-        # Calculamos el factorial
+        vuelta = int(entradas["numCiclos"].get())
         resultado = calcular_factorial(vuelta)
-
-        # Datos que se enviarán
         datos = {key: entradas[key].get() for key in entradas}
         datos["ciclo"] = ciclo_texto.get("1.0", tk.END).strip()
         datos["resultado_factorial"] = resultado
-
-        # Mostrar en la pantalla principal los datos que se van a enviar
-        datos_a_enviar = "\n".join([f"{key}: {value}" for key, value in datos.items()])
-        datos_label.config(text=f"Datos a Enviar:\n{datos_a_enviar}")
-
-        # Enviar los datos por puerto serie
-        comando = f"Factorial:{resultado}"
-        enviar_datos(comando)
-
+        datos_label.config(text=f"Datos a Enviar:\n{datos}")
+        enviar_datos(f"Factorial:{resultado}")
     except ValueError:
         messagebox.showerror("Error", "Ingrese un valor numérico válido para la vuelta.")
-    except AttributeError:
-        messagebox.showerror("Error", "Algunos campos de entrada no están disponibles.")
 
-def archivo():
+def archivo_nuevo():
     """Crea una nueva ventana para ingresar datos y guarda esos datos en un archivo."""
+    global ciclo_texto, entradas, filename
+    entradas = {}
     menu_arch = tk.Toplevel()
     menu_arch.title("Nuevo Archivo")
     menu_arch.geometry("400x600")
-    menu_arch.configure(bg="#4682B4")
 
-    global vuelta_entry, ciclo_texto, entradas
-    entradas = {}  # Limpiamos la variable global de entradas para el nuevo formulario
     etiquetas = [
         ("Temperatura Inicial", "tempInicial"),
         ("Temperatura Máxima", "tempMax"),
         ("Temperatura Media", "tempMed"),
         ("Temperatura Mínima", "tempMin"),
-        ("Temperatura de Almacenamiento", "tempAlm"),
         ("Tiempo 1", "time1"),
         ("Tiempo 2", "time2"),
         ("Tiempo 3", "time3"),
-        ("Tiempo 4", "time4"),
-        ("Número de Ciclos", "numCiclos"),  # Asegúrate de que 'numCiclos' esté en el formulario
+        ("Número de Ciclos", "numCiclos"),
     ]
-    
+
     for etiqueta, key in etiquetas:
-        frame = tk.Frame(menu_arch, bg="#4682B4")
+        frame = tk.Frame(menu_arch)
         frame.pack(fill=tk.X, padx=10, pady=2)
-        tk.Label(frame, text=etiqueta, bg="#4682B4", fg="white", width=25, anchor='w').pack(side=tk.LEFT)
+        tk.Label(frame, text=etiqueta, width=25, anchor='w').pack(side=tk.LEFT)
         entrada = tk.Entry(frame)
         entrada.pack(side=tk.RIGHT, fill=tk.X, expand=True)
-        entradas[key] = entrada  # Rellenamos el diccionario 'entradas'
+        entradas[key] = entrada
 
-    tk.Label(menu_arch, text="Ciclo (Contenido a enviar)", bg="#4682B4", fg="white").pack(anchor=tk.NW)
+    tk.Label(menu_arch, text="Ciclo").pack()
     ciclo_texto = tk.Text(menu_arch, height=5, width=40)
     ciclo_texto.pack(pady=10)
+    tk.Button(menu_arch, text="Guardar", command=guardar_datos).pack(pady=10)
 
-    tk.Button(menu_arch, text="Guardar", command=lambda: guardar_datos(menu_arch)).pack(pady=10)
-    tk.Button(menu_arch, text="Enviar por Puerto Serie", command=enviar_por_puerto).pack(pady=10)
-
-def guardar_datos(ventana):
-    datos = {etiqueta: entradas[etiqueta].get() for etiqueta in entradas}
+def guardar_datos():
+    """Guarda los datos del archivo nuevo o abierto."""
+    global filename
+    datos = {key: entradas[key].get() for key in entradas}
     datos["ciclo"] = ciclo_texto.get("1.0", tk.END).strip()
     
-    global filename
-    filename = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
-    if filename:
+    if filename:  # Si ya se abrió un archivo, guarda en el mismo archivo
         with open(filename, "w") as file:
             for key, value in datos.items():
                 file.write(f"{key}: {value}\n")
         messagebox.showinfo("Guardado", "Datos guardados exitosamente.")
-
-def enviar_por_puerto():
-    datos = {etiqueta: entradas[etiqueta].get() for etiqueta in entradas}
-    datos["ciclo"] = ciclo_texto.get("1.0", tk.END).strip()
-    comando = "orden: " + ",".join([datos[key] for key in entradas])
-    enviar_datos(comando)
-    messagebox.showinfo("Enviado", "Datos enviados por puerto serie.")
+        actualizar_nombre_archivo()
+    else:  # Si no hay un archivo cargado, se pide al usuario uno nuevo
+        filename = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
+        if filename:
+            with open(filename, "w") as file:
+                for key, value in datos.items():
+                    file.write(f"{key}: {value}\n")
+            messagebox.showinfo("Guardado", "Datos guardados exitosamente.")
+            actualizar_nombre_archivo()
 
 def abrir_archivo():
     """Abre y carga datos desde un archivo guardado."""
     global datos_cargados, filename
     filename = filedialog.askopenfilename(filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
-    
     if filename:
         with open(filename, "r") as file:
             datos_cargados.clear()
@@ -151,55 +130,73 @@ def abrir_archivo():
                 clave, valor = line.strip().split(": ", 1)
                 datos_cargados[clave] = valor
         messagebox.showinfo("Cargado", "Datos cargados exitosamente.")
-        if 'ventana_puerto' in globals() and ventana_puerto.winfo_exists():  # Verifica si la ventana existe
-            actualizar_campos()
-        else:
-            print("Ventana ya cerrada, no se puede actualizar.")
+        actualizar_campos()
 
 def actualizar_campos():
     """Llena los campos con los datos cargados."""
+    global entradas
     for key, entry in entradas.items():
-        if key in datos_cargados and entry.winfo_exists():  # Verifica que el Entry todavía exista
+        if key in datos_cargados:
             entry.delete(0, tk.END)
             entry.insert(0, datos_cargados[key])
-    
     ciclo_texto.delete("1.0", tk.END)
     if "ciclo" in datos_cargados:
         ciclo_texto.insert("1.0", datos_cargados["ciclo"])
 
-def editar_archivo():
-    """Permite editar un archivo previamente cargado."""
-    global datos_cargados
-    if not datos_cargados:
-        messagebox.showerror("Error", "No hay datos cargados para editar.")
-        return
+def habilitar_edicion():
+    """Habilita los campos de entrada y el texto para editar."""
+    global entradas, ciclo_texto
+    for key, entry in entradas.items():
+        entry.config(state=tk.NORMAL)  # Habilita el campo de entrada
+    ciclo_texto.config(state=tk.NORMAL)  # Habilita el campo de texto
 
-    ventana_edicion = tk.Toplevel()
-    ventana_edicion.title("Editar Archivo")
-    
-    tk.Label(ventana_edicion, text="Editar Datos del Archivo").pack(pady=10)
-    
-    # Crear campos de edición basados en los datos cargados
-    for key, value in datos_cargados.items():
-        tk.Label(ventana_edicion, text=key).pack(pady=5)
-        entry = tk.Entry(ventana_edicion)
-        entry.insert(0, value)
-        entry.pack(pady=5)
-        entradas[key] = entry
-    
-    def guardar_ediciones():
-        """Guardar los datos editados en el archivo original."""
-        datos_editados = {key: entry.get() for key, entry in entradas.items()}
-        
-        global filename
-        if not filename:
-            filename = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Text files", "*.txt"), ("All files", "*.*")])
-        
-        if filename:
-            with open(filename, "w") as file:
-                for key, value in datos_editados.items():
-                    file.write(f"{key}: {value}\n")
-            messagebox.showinfo("Guardado", "Datos editados y guardados exitosamente.")
-            ventana_edicion.destroy()
+def deshabilitar_edicion():
+    """Deshabilita los campos de entrada y el texto para evitar cambios."""
+    global entradas, ciclo_texto
+    for key, entry in entradas.items():
+        entry.config(state=tk.DISABLED)  # Deshabilita el campo de entrada
+    ciclo_texto.config(state=tk.DISABLED)  # Deshabilita el campo de texto
 
-    tk.Button(ventana_edicion, text="Guardar Cambios", command=guardar_ediciones).pack(pady=10)
+def actualizar_nombre_archivo():
+    """Actualiza la etiqueta con el nombre del archivo cargado o guardado."""
+    if filename:
+        nombre_archivo = filename.split("/")[-1]  # Extrae solo el nombre del archivo
+        datos_label.config(text=f"Archivo: {nombre_archivo}")
+    else:
+        datos_label.config(text="Datos a Enviar:")
+
+root = tk.Tk()
+root.title("Interfaz Termociclador")
+root.geometry("500x400")
+
+# Barra de menú
+menu_bar = tk.Menu(root)
+root.config(menu=menu_bar)
+menu_archivo = tk.Menu(menu_bar, tearoff=0)
+menu_archivo.add_command(label="Nuevo", command=archivo_nuevo)
+menu_archivo.add_command(label="Abrir", command=abrir_archivo)
+menu_bar.add_cascade(label="Archivo", menu=menu_archivo)
+menu_bar.add_command(label="Abrir Puerto", command=abrir_puerto)
+menu_bar.add_command(label="Ejecutar", command=play)
+
+# Botones en la pantalla
+frame_boton = tk.Frame(root)
+frame_boton.pack(pady=10)
+
+btn_nuevo = tk.Button(frame_boton, text="Nuevo", command=archivo_nuevo)
+btn_nuevo.pack(side=tk.LEFT, padx=5)
+
+btn_abrir = tk.Button(frame_boton, text="Abrir Archivo", command=abrir_archivo)
+btn_abrir.pack(side=tk.LEFT, padx=5)
+
+btn_abrir_puerto = tk.Button(frame_boton, text="Abrir Puerto", command=abrir_puerto)
+btn_abrir_puerto.pack(side=tk.LEFT, padx=5)
+
+btn_ejecutar = tk.Button(frame_boton, text="Ejecutar", command=play)
+btn_ejecutar.pack(side=tk.LEFT, padx=5)
+
+# Label para mostrar el nombre del archivo cargado o guardado
+datos_label = tk.Label(root, text="Datos a Enviar:")
+datos_label.pack(pady=20)
+
+root.mainloop()
